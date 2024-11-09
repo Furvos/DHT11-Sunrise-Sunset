@@ -1,4 +1,4 @@
 Needed:
-DHT Sensor Library
-Adafruit Unified Sensor
-ESP32 Driver
+DHT Sensor Library;
+Adafruit Unified Sensor;
+ESP32 Driver;
