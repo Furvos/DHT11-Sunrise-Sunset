@@ -3,9 +3,11 @@
 #include <WebServer.h>
 #include <ESPmDNS.h>
 #include <DHT.h>
+#include <HTTPClient.h>
+#include <ArduinoJson.h>
 
-const char *ssid = "CLARO_2G143116";
-const char *password = "B8143116";
+const char *ssid = "**";
+const char *password = "**";
 
 WebServer server(80);
 DHT dht(15, DHT11);
@@ -16,7 +18,7 @@ void handleRoot() {
   snprintf(msg, 2000,
            "<html lang='pt-BR'>\
   <head>\
-    <meta http-equiv='refresh' content='4'/>\
+    <meta http-equiv='refresh' content='5'>\
     <meta name='viewport' content='width=device-width, initial-scale=1'>\
     <link rel='stylesheet' href='https://use.fontawesome.com/releases/v5.7.2/css/all.css' integrity='sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr' crossorigin='anonymous'>\
     <title>Monitor de Horta</title>\
@@ -46,7 +48,7 @@ void handleRoot() {
         <p id='sunrise'>Carregando...</p>\
         <p id='sunset'>Carregando...</p>\
  <script>\
- const apiURL = 'https://api.sunrise-sunset.org/json?lat=-5.0874608&lng=-42.8049571&date=today';\
+ const apiURL = 'https://api.sunrisesunset.io/json?lat=-5.0874608&lng=-42.8049571&timezone=America/Sao_Paulo&date=today';\
  function updateSunTimes() {\
    fetch(apiURL)\
    .then(res => res.json())\
@@ -63,8 +65,7 @@ void handleRoot() {
  </script>\
   </body>\
 </html>",
-           readDHTTemperature(), readDHTHumidity()
-          );
+           readDHTTemperature(), readDHTHumidity());
   server.send(200, "text/html", msg);
 }
 
@@ -73,7 +74,7 @@ void setup(void) {
 
   Serial.begin(115200);
   dht.begin();
-  
+
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   Serial.println("");
@@ -101,7 +102,11 @@ void setup(void) {
 
 void loop(void) {
   server.handleClient();
-  delay(2);//allow the cpu to switch to other tasks
+  delay(2);  //allow the cpu to switch to other tasks
+
+  if ((WiFi.status() == WL_CONNECTED)) {
+    delay(5000);
+  }
 }
 
 
@@ -109,11 +114,10 @@ float readDHTTemperature() {
   // Sensor readings may also be up to 2 seconds
   // Read temperature as Celsius (the default)
   float t = dht.readTemperature();
-  if (isnan(t)) {    
+  if (isnan(t)) {
     Serial.println("Failed to read from DHT sensor!");
     return -1;
-  }
-  else {
+  } else {
     Serial.println(t);
     return t;
   }
@@ -125,8 +129,7 @@ float readDHTHumidity() {
   if (isnan(h)) {
     Serial.println("Failed to read from DHT sensor!");
     return -1;
-  }
-  else {
+  } else {
     Serial.println(h);
     return h;
   }
